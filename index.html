@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem Mã Xác Thực Email</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            margin-top: 10px;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .info-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #856404;
+        }
+        
+        .info-box strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-box a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .user-email {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .email-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .email-item {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+        
+        .email-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .email-item.verification {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        
+        .email-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+        
+        .email-from {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .email-date {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        .email-subject {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .email-snippet {
+            color: #999;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+        }
+        
+        .code-container {
+            background: white;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .code-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .code-main {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .code-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .code-badge {
+            background: #e0e0e0;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .code-badge:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .no-emails {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .header-bar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .code-main {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Trang đăng nhập -->
+        <div id="loginPage" class="card">
+            <h1>🔐 Xem Mã Xác Thực Email</h1>
+            <p class="subtitle">Đăng nhập để xem email và mã xác thực</p>
+            
+            <div class="info-box">
+                <strong>📌 Hướng dẫn lấy App Password:</strong>
+                1. Vào <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords</a><br>
+                2. Tạo mật khẩu ứng dụng mới<br>
+                3. Copy mật khẩu 16 ký tự (ví dụ: abcd efgh ijkl mnop)<br>
+                4. Dán vào ô bên dưới
+            </div>
+            
+            <div class="form-group">
+                <label for="email">📧 Email</label>
+                <input type="email" id="email" placeholder="example@gmail.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">🔑 App Password (16 ký tự)</label>
+                <input type="password" id="password" placeholder="abcd efgh ijkl mnop">
+            </div>
+            
+            <button id="loginBtn" onclick="login()">Đăng Nhập</button>
+            
+            <div id="loginMessage" class="message"></div>
+        </div>
+        
+        <!-- Trang xem email -->
+        <div id="emailPage" class="hidden">
+            <div class="card">
+                <div class="header-bar">
+                    <div>
+                        <h1>📬 Email của bạn</h1>
+                        <p class="user-email" id="userEmail"></p>
+                    </div>
+                    <button class="btn-secondary" style="width: auto; padding: 10px 20px;" onclick="logout()">Đăng Xuất</button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalEmails">0</div>
+                        <div class="stat-label">Email</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="verificationEmails">0</div>
+                        <div class="stat-label">Có mã xác thực</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="lastUpdate">--:--:--</div>
+                        <div class="stat-label">Cập nhật lần cuối</div>
+                    </div>
+                </div>
+                
+                <div class="auto-refresh">
+                    <input type="checkbox" id="autoRefresh" checked>
+                    <label for="autoRefresh" style="margin: 0; cursor: pointer;">Tự động làm mới mỗi 30 giây</label>
+                </div>
+                
+                <button class="btn-success" onclick="refreshEmails()" id="refreshBtn">
+                    🔄 Làm Mới Email
+                </button>
+            </div>
+            
+            <div class="card">
+                <h2 style="color: #333; margin-bottom: 20px;">📧 Danh Sách Email</h2>
+                <div id="emailList" class="email-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://email-viewer.onrender.com';
+        let sessionId = null;
+        let autoRefreshInterval = null;
+
+        // Đăng nhập
+        async function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!email || !password) {
+                showMessage('loginMessage', 'Vui lòng nhập đầy đủ thông tin!', 'error');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="loading"></span>Đang đăng nhập...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    sessionId = data.sessionId;
+                    document.getElementById('userEmail').textContent = email;
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('emailPage').classList.remove('hidden');
+                    
+                    await refreshEmails();
+                    startAutoRefresh();
+                } else {
+                    showMessage('loginMessage', data.message, 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = 'Đăng Nhập';
+                }
+            } catch (error) {
+                showMessage('loginMessage', 'Lỗi kết nối server!', 'error');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'Đăng Nhập';
+            }
+        }
+        
+        // Đọc email
+        async function refreshEmails() {
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.disabled = true;
+            refreshBtn.innerHTML = '<span class="loading"></span>Đang tải...';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/read-emails`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayEmails(data.emails);
+                    document.getElementById('totalEmails').textContent = data.count;
+                    document.getElementById('verificationEmails').textContent = 
+                        data.emails.filter(e => e.isVerificationEmail).length;
+                    document.getElementById('lastUpdate').textContent = data.lastUpdate;
+                } else {
+                    if (response.status === 401) {
+                        logout();
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+            
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = '🔄 Làm Mới Email';
+        }
+        
+        // Hiển thị email
+        function displayEmails(emails) {
+            const container = document.getElementById('emailList');
+            
+            if (emails.length === 0) {
+                container.innerHTML = '<div class="no-emails">📭 Không có email nào</div>';
+                return;
+            }
+            
+            container.innerHTML = emails.map(email => {
+                const date = new Date(email.date);
+                const formattedDate = date.toLocaleString('vi-VN');
+                
+                return `
+                    <div class="email-item ${email.isVerificationEmail ? 'verification' : ''}">
+                        <div class="email-header">
+                            <div class="email-from">${escapeHtml(email.from)}</div>
+                            <div class="email-date">${formattedDate}</div>
+                        </div>
+                        <div class="email-subject">📄 ${escapeHtml(email.subject)}</div>
+                        ${email.snippet ? `<div class="email-snippet">${escapeHtml(email.snippet)}</div>` : ''}
+                        
+                        ${email.mainCode ? `
+                            <div class="code-container">
+                                <div class="code-label">🔑 MÃ XÁC THỰC:</div>
+                                <div class="code-main" id="code-${email.timestamp}">${email.mainCode}</div>
+                                <button class="copy-btn" onclick="copyCode('${email.mainCode}', ${email.timestamp})">
+                                    📋 Copy Mã
+                                </button>
+                                ${email.allCodes.length > 1 ? `
+                                    <div class="code-label" style="margin-top: 10px;">Các mã khác:</div>
+                                    <div class="code-list">
+                                        ${email.allCodes.filter(c => c !== email.mainCode).map(code => 
+                                            `<div class="code-badge" onclick="copyCode('${code}')">${code}</div>`
+                                        ).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Copy mã
+        function copyCode(code, timestamp) {
+            navigator.clipboard.writeText(code).then(() => {
+                if (timestamp) {
+                    const codeEl = document.getElementById(`code-${timestamp}`);
+                    const originalText = codeEl.textContent;
+                    codeEl.textContent = '✅ Đã copy!';
+                    setTimeout(() => {
+                        codeEl.textContent = originalText;
+                    }, 2000);
+                } else {
+                    alert('✅ Đã copy mã: ' + code);
+                }
+            });
+        }
+        
+        // Tự động làm mới
+        function startAutoRefresh() {
+            const checkbox = document.getElementById('autoRefresh');
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(() => {
+                    refreshEmails();
+                }, 30000); // 30 giây
+            }
+        }
+        
+        document.getElementById('autoRefresh')?.addEventListener('change', startAutoRefresh);
+        
+        // Đăng xuất
+        async function logout() {
+            if (sessionId) {
+                await fetch(`${API_URL}/api/logout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId })
+                });
+            }
+            
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            
+            sessionId = null;
+            document.getElementById('loginPage').classList.remove('hidden');
+            document.getElementById('emailPage').classList.add('hidden');
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+        }
+        
+        // Hiển thị thông báo
+        function showMessage(elementId, text, type) {
+            const messageDiv = document.getElementById(elementId);
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type} show`;
+            
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 5000);
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Enter để đăng nhập
+        document.getElementById('password')?.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
